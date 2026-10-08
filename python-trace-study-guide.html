@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python Trace & Output Study Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eaf0f6;--panel:#ffffff;--ink:#14213d;--muted:#55627a;--line:#c9d4e2;
+  --code:#f7f9fc;--hl:#ffe066;--ok:#0b8a6a;--bad:#c93651;--accent:#2b59c3;--okbg:#d9f2ea;--badbg:#f9dfe4;
+  --sans:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1525;--panel:#16203a;--ink:#e6ecf7;--muted:#97a5c0;--line:#2a3856;--code:#0f1830;--hl:#6b5a0f;--ok:#4fd1a8;--bad:#ff7d92;--accent:#8fb0ff;--okbg:#12362f;--badbg:#42202b}}
+:root[data-theme="dark"]{--bg:#0e1525;--panel:#16203a;--ink:#e6ecf7;--muted:#97a5c0;--line:#2a3856;--code:#0f1830;--hl:#6b5a0f;--ok:#4fd1a8;--bad:#ff7d92;--accent:#8fb0ff;--okbg:#12362f;--badbg:#42202b}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--sans);min-height:100%}
+.wrap{max-width:880px;margin:0 auto;padding:28px 18px 80px}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.02;font-weight:800;margin:.2em 0 .3em;letter-spacing:-.02em}
+h2{font-size:1.7rem;font-weight:800;margin:2.2em 0 .5em;letter-spacing:-.01em}
+h3{font-size:1.15rem;margin:1.4em 0 .3em}
+p{margin:.5em 0;max-width:70ch}
+.lede{color:var(--muted);font-size:1.1rem}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p code,li code,td code{background:var(--code);border:1px solid var(--line);padding:1px 6px;border-radius:5px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+nav a{color:var(--ink);text-decoration:none;border:1.5px solid var(--ink);border-radius:999px;padding:4px 13px;font-size:.92rem;font-weight:600}
+nav a:hover,nav a:focus-visible{background:var(--ink);color:var(--bg);outline:none}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tbtn{background:none;border:1.5px solid var(--line);color:var(--muted);border-radius:8px;padding:4px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.box{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.grid2{grid-template-columns:1fr}}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted)}
+.trap{border-left:5px solid var(--bad);background:var(--badbg);padding:10px 14px;border-radius:0 10px 10px 0;margin:10px 0}
+.tip{border-left:5px solid var(--ok);background:var(--okbg);padding:10px 14px;border-radius:0 10px 10px 0;margin:10px 0}
+.prob{background:var(--panel);border:1.5px solid var(--ink);border-radius:14px;padding:18px;margin:26px 0;box-shadow:6px 6px 0 var(--line)}
+.prob h3{margin:0 0 4px;font-size:1.25rem}
+.tag{display:inline-block;font-size:.8rem;font-weight:600;color:var(--accent);margin-bottom:6px}
+pre.code{margin:10px 0;padding:10px 0;background:var(--code);border:1px solid var(--line);border-radius:10px;overflow-x:auto;font:.9rem/1.65 var(--mono)}
+.ln{display:block;padding:0 14px 0 8px;white-space:pre;border-left:4px solid transparent}
+.ln i{display:inline-block;width:2.2em;color:var(--muted);font-style:normal;user-select:none}
+.ln.on{background:var(--hl);border-left-color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button.b{font:600 .95rem var(--sans);padding:8px 15px;border-radius:9px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+button.b.main{background:var(--ink);color:var(--bg)}
+button.b:disabled{opacity:.35;cursor:default}
+button.b:focus-visible,.tbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ans{display:none;margin-top:10px}
+.ans.show{display:block}
+.final{font-family:var(--mono);background:var(--code);border:1px solid var(--line);border-radius:8px;padding:8px 12px;white-space:pre;overflow-x:auto;display:inline-block;max-width:100%}
+.tracer{display:none;margin-top:12px;border-top:2px dashed var(--line);padding-top:12px}
+.tracer.show{display:block}
+.note{min-height:3.2em;font-weight:600}
+.state{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.frame{border:1.5px solid var(--line);border-radius:8px;padding:4px 10px;font:.88rem var(--mono);background:var(--code)}
+.frame b{color:var(--accent);margin-right:6px}
+.frame.top{border-color:var(--ink)}
+.out{background:#0b1220;color:#e8f0ff;font:.9rem/1.5 var(--mono);border-radius:8px;padding:8px 12px;min-height:2.6em;white-space:pre-wrap}
+.out em{color:#8aa0c8;font-style:normal}
+.cnt{color:var(--muted);font-size:.88rem;align-self:center}
+ol.rules li,ul.rules li{margin:.4em 0}
+footer{color:var(--muted);margin-top:50px;font-size:.9rem}
+details.les{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;margin:10px 0;padding:0 18px}
+details.les[open]{border-color:var(--ink)}
+details.les summary{cursor:pointer;font-weight:800;font-size:1.1rem;padding:13px 0;list-style:none}
+details.les summary::-webkit-details-marker{display:none}
+details.les summary::before{content:"+";display:inline-block;width:1.4em;color:var(--accent)}
+details.les[open] summary::before{content:"\2212"}
+details.les summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.eg{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:.9rem/1.6 var(--mono);white-space:pre;overflow-x:auto;margin:8px 0}
+.res{background:#0b1220;color:#e8f0ff;border-radius:8px;padding:8px 12px;font:.9rem/1.5 var(--mono);white-space:pre;overflow-x:auto;margin:6px 0 10px}
+.res:before{content:"Output";display:block;color:#8aa0c8;font:600 .75rem var(--sans);margin-bottom:2px}
+.say{border-left:5px solid var(--accent);padding:6px 14px;margin:10px 0;background:var(--code);border-radius:0 8px 8px 0}
+.pbar{height:8px;background:var(--line);border-radius:6px;margin:8px 0 14px;overflow:hidden}
+.pfill{height:100%;background:var(--ok);transition:width .3s}
+.opts{display:grid;gap:8px;margin:10px 0}
+button.opt{text-align:left;font:600 1rem var(--sans);padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;white-space:pre-wrap}
+button.opt:hover{border-color:var(--ink)}
+button.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.opt.right{background:var(--okbg);border-color:var(--ok)}
+button.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.fb.good{border-left:5px solid var(--ok);background:var(--okbg);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0}
+.fb.bad{border-left:5px solid var(--bad);background:var(--badbg);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0}
+.qt{font-weight:600;font-size:1.1rem;margin:.6em 0 .2em}
+input.inp{font:1.1rem var(--mono);padding:8px 12px;border-radius:9px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);width:11em;max-width:100%}
+input.inp:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><span class="tag">Exam prep: trace the code, predict the output</span><button class="tbtn" id="theme">Switch theme</button></div>
+<h1>Read the code like Python does.</h1>
+<p class="lede">Eight practice problems from your midterm review, each with the answer, the reason for it, and a step-by-step tracer. Predict the output first, then check yourself.</p>
+<nav><a href="#plan">7-day plan</a><a href="#basics">Basics</a><a href="#words">Vocabulary</a><a href="#rules">Rules</a><a href="#traps">Traps</a><a href="#problems">8 Problems</a><a href="#arcade">Arcade</a><a href="#drill">Math drill</a><a href="#method">Method</a></nav>
+
+<h2 id="plan">Your 7-day plan</h2>
+<div class="box"><div class="tablewrap"><table>
+<tr><th>Day</th><th>Do this</th></tr>
+<tr><td>1</td><td>Read basics lessons 1 to 5. Do 10 questions in the Math drill. Play the Basics, Math and Strings arcade topics.</td></tr>
+<tr><td>2</td><td>Read lessons 6 to 8. Play Decisions and Loops in the arcade.</td></tr>
+<tr><td>3</td><td>Read lessons 9 to 12 (functions). Play the Functions topic until you score 80% or more.</td></tr>
+<tr><td>4</td><td>Problems 1 to 4: trace each one on paper first, then check with the tracer.</td></tr>
+<tr><td>5</td><td>Problems 5 to 7, plus a Math drill streak of 10 in a row.</td></tr>
+<tr><td>6</td><td>Read lesson 13 (recursion). Do Problem 8 (the midterm practice) and the Recursion topic. Then play All topics.</td></tr>
+<tr><td>7</td><td>Redo all 8 problems on paper without looking. Fix what you miss. Sleep well.</td></tr>
+</table></div></div>
+
+<h2 id="basics">Start here: Python from zero</h2>
+<p class="lede">If you know nothing yet, read these in order. Each lesson is short, has a small example, and says what Python does and why. Tap a lesson to open it.</p>
+<div class="box"><h3>The one big idea</h3>
+<p>A program is a list of instructions. Python is a very literal robot: it reads them from the top, one line at a time, and does exactly what each line says. Your exam job is to <b>be the robot</b>. Go line by line, keep track of what is stored, and write down what gets printed. That is all "tracing" means.</p></div>
+
+<details class="les" open><summary>1. Variables: named boxes that hold a value</summary>
+<p>A variable is a name with a value stored under it, like a labeled box.</p>
+<div class="eg">x = 10
+y = 3</div>
+<p>This stores 10 in a box labeled <code>x</code> and 3 in a box labeled <code>y</code>.</p>
+<div class="say"><b>The = sign is not "equals".</b> It means "work out the right side, then store the result under the name on the left." The right side always happens first.</div>
+<div class="eg">x = 5
+x = x + 2
+print(x)</div>
+<div class="res">7</div>
+<p>Python computes <code>x + 2</code> using the current x (5), gets 7, and stores 7 back in x. The old 5 is gone. Storing a new value always replaces the old one.</p>
+<div class="eg">x = 4
+y = x
+x = 9
+print(y)</div>
+<div class="res">4</div>
+<p><code>y = x</code> copies the value 4 at that moment. Changing x later does not change y.</p>
+</details>
+
+<details class="les"><summary>2. Kinds of values: numbers, text, True/False</summary>
+<ul class="rules">
+<li><b>Integer (int):</b> a whole number like <code>5</code> or <code>-2</code>.</li>
+<li><b>String (str):</b> text inside quotes, like <code>'bye '</code> or <code>"hello"</code>. Quotes can be single or double. Spaces inside the quotes count.</li>
+<li><b>Boolean:</b> only <code>True</code> or <code>False</code>. Comparisons produce these.</li>
+</ul>
+<p><code>'5'</code> (with quotes) is text. <code>5</code> (no quotes) is a number. They behave differently:</p>
+<div class="eg">print(5 + 5)
+print('5' + '5')
+print('ab' * 3)</div>
+<div class="res">10
+55
+ababab</div>
+<p>With numbers, <code>+</code> adds. With strings, <code>+</code> glues them together. A string times a whole number repeats the string.</p>
+</details>
+
+<details class="les"><summary>3. print: the only way to show something on the screen</summary>
+<p><code>print(...)</code> displays a value. Each print goes on its own new line. The exam asks "what is the output?", which means: what gets shown by print, in order.</p>
+<div class="eg">x = 3
+print("x")
+print(x)
+print(x + 1)</div>
+<div class="res">x
+3
+4</div>
+<p>Quotes make text: <code>print("x")</code> shows the letter x. No quotes means "show what is stored in that name": <code>print(x)</code> shows 3. If nothing prints, the output is empty. Calculations without a print never show up.</p>
+</details>
+
+<details class="les"><summary>4. Math operators, including the confusing // and %</summary>
+<div class="tablewrap"><table>
+<tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+<tr><td><code>+</code></td><td>add</td><td><code>7 + 2</code></td><td>9</td></tr>
+<tr><td><code>-</code></td><td>subtract</td><td><code>7 - 2</code></td><td>5</td></tr>
+<tr><td><code>*</code></td><td>multiply</td><td><code>7 * 2</code></td><td>14</td></tr>
+<tr><td><code>/</code></td><td>divide, with decimals</td><td><code>7 / 2</code></td><td>3.5</td></tr>
+<tr><td><code>//</code></td><td>divide, keep only the whole part</td><td><code>7 // 2</code></td><td>3</td></tr>
+<tr><td><code>%</code></td><td>remainder (modulo)</td><td><code>7 % 2</code></td><td>1</td></tr>
+<tr><td><code>**</code></td><td>power</td><td><code>2 ** 3</code></td><td>8</td></tr>
+</table></div>
+<div class="say"><b>Candy picture.</b> You have 17 candies and make bags of 5. <code>17 // 5</code> is the number of full bags: 3. <code>17 % 5</code> is the candies left over: 2. (5 x 3 = 15, and 17 - 15 = 2.)</div>
+<p><b>Small % big:</b> <code>4 % 9</code>. Nine fits into 4 zero times, so all 4 are left over. The answer is 4.</p>
+<p><b>Even/odd trick:</b> <code>x % 2</code> is 0 for even numbers and 1 for odd numbers.</p>
+<h3>Order of operations</h3>
+<p>Parentheses, then <code>**</code>, then <code>* / // %</code> (left to right), then <code>+ -</code> (left to right), then comparisons.</p>
+<div class="eg">print(2 + 3 * 4)
+print((2 + 3) * 4)
+print(10 - 4 - 3)
+print(10 * 3 % 7)</div>
+<div class="res">14
+20
+3
+2</div>
+<p>Walk through the last one: <code>*</code> and <code>%</code> tie, so go left to right. 10 * 3 = 30, then 30 % 7 = 2.</p>
+</details>
+
+<details class="les"><summary>5. Comparisons: questions that answer True or False</summary>
+<div class="tablewrap"><table>
+<tr><th>Symbol</th><th>Asks</th></tr>
+<tr><td><code>==</code></td><td>is it equal?</td></tr>
+<tr><td><code>!=</code></td><td>is it NOT equal?</td></tr>
+<tr><td><code>&lt;</code> <code>&gt;</code></td><td>less than, greater than</td></tr>
+<tr><td><code>&lt;=</code> <code>&gt;=</code></td><td>less than or equal, greater than or equal</td></tr>
+</table></div>
+<div class="trap"><b>One = stores. Two == asks.</b> <code>x = 5</code> puts 5 in x. <code>x == 5</code> asks whether x is 5.</div>
+<p>Math happens first, the comparison last. <code>2 + 3 &gt; 4</code> becomes <code>5 &gt; 4</code>, which is True. Equal counts for <code>&lt;=</code> and <code>&gt;=</code>: <code>2 &gt;= 2</code> is True, but <code>2 &gt; 2</code> is False.</p>
+</details>
+
+<details class="les"><summary>6. if / elif / else: making decisions</summary>
+<p>An <code>if</code> runs its indented lines only when the condition is True. Indentation (the spaces at the start of the line) shows which lines belong inside.</p>
+<div class="eg">x = 7
+if x > 5:
+    print("big")
+else:
+    print("small")
+print("done")</div>
+<div class="res">big
+done</div>
+<p>7 &gt; 5 is True, so "big" prints and the else is skipped. <code>print("done")</code> is not indented, so it is outside the if and always runs.</p>
+<p><b>elif</b> means "otherwise, if". Python tests top to bottom and runs only the first branch that is True, then skips the rest of the chain.</p>
+<div class="eg">x = 5
+if x > 5:
+    print(1)
+elif x == 5:
+    print(2)
+else:
+    print(3)</div>
+<div class="res">2</div>
+<div class="say"><b>Two separate ifs are different from if/elif.</b> Separate ifs are each checked on their own, so more than one can run (Problem 3 does this). In a chain with elif/else, only one runs.</div>
+<p><b>Nested if:</b> an if inside an if. The inside one is only looked at when the outside one was True (Problem 4).</p>
+</details>
+
+<details class="les"><summary>7. while loops: repeat while something is True</summary>
+<p>A while loop does this over and over: <b>check the condition. If True, run the indented body, then go back and check again. If False, leave the loop.</b></p>
+<div class="eg">i = 0
+while i < 3:
+    print(i)
+    i = i + 1</div>
+<div class="res">0
+1
+2</div>
+<p>Trace it with a table. One row per check:</p>
+<div class="tablewrap"><table>
+<tr><th>Check</th><th>i at the check</th><th>i &lt; 3?</th><th>Body does</th></tr>
+<tr><td>1</td><td>0</td><td>True</td><td>prints 0, i becomes 1</td></tr>
+<tr><td>2</td><td>1</td><td>True</td><td>prints 1, i becomes 2</td></tr>
+<tr><td>3</td><td>2</td><td>True</td><td>prints 2, i becomes 3</td></tr>
+<tr><td>4</td><td>3</td><td>False</td><td>loop ends</td></tr>
+</table></div>
+<ul class="rules">
+<li>If the condition is False the very first time, the body runs <b>zero</b> times.</li>
+<li>If nothing in the body changes the condition, the loop never ends (an infinite loop).</li>
+<li>"How many times does the loop run?" means how many times the body ran. Check 4 above is not a run.</li>
+</ul>
+</details>
+
+<details class="les"><summary>8. for loops and range()</summary>
+<p><code>for i in range(...)</code> repeats for a fixed list of numbers. Python sets <code>i</code> to each number in turn.</p>
+<div class="tablewrap"><table>
+<tr><th>Code</th><th>Numbers i takes</th></tr>
+<tr><td><code>range(3)</code></td><td>0, 1, 2</td></tr>
+<tr><td><code>range(2, 5)</code></td><td>2, 3, 4</td></tr>
+<tr><td><code>range(1, 10)</code></td><td>1, 2, 3, 4, 5, 6, 7, 8, 9</td></tr>
+</table></div>
+<div class="say"><b>The start is included. The stop is NOT.</b> <code>range(1, 10)</code> stops before 10. <code>range(3)</code> starts at 0 by default.</div>
+<p><b>break</b> leaves the loop immediately. <b>for ... else:</b> the else runs only if the loop finished without hitting a break (Problem 7).</p>
+<div class="eg">for i in range(10):
+    if i == 3:
+        break
+    print(i)</div>
+<div class="res">0
+1
+2</div>
+</details>
+
+<details class="les"><summary>9. Functions: defining vs calling</summary>
+<p>A function is a named block of instructions you can reuse. Think of a recipe card.</p>
+<div class="eg">def say_hi():
+    print("hi")
+
+say_hi()
+say_hi()</div>
+<div class="res">hi
+hi</div>
+<ul class="rules">
+<li><code>def say_hi():</code> <b>defines</b> the function. It writes the recipe down. Nothing runs yet.</li>
+<li><code>say_hi()</code> <b>calls</b> the function. The parentheses mean "do it now". This is cooking from the recipe.</li>
+<li>Calling it twice runs the body twice.</li>
+</ul>
+<div class="say"><b>What "calling a function" really does:</b> Python jumps up to the function's first line, runs the body, then jumps back to the line that made the call and carries on.</div>
+<p>If you define a function and never call it, nothing happens. That is why exam programs end with <code>main()</code>: that line starts everything. <code>main</code> is just an ordinary function with a conventional name.</p>
+</details>
+
+<details class="les"><summary>10. Parameters, arguments and default values</summary>
+<div class="eg">def add(a, b):
+    return a + b
+
+print(add(2, 3))</div>
+<div class="res">5</div>
+<ul class="rules">
+<li><b>Parameters</b> are the blanks in the def line: <code>a</code> and <code>b</code>.</li>
+<li><b>Arguments</b> are the real values you pass in the call: <code>2</code> and <code>3</code>.</li>
+<li>They are matched in order: a = 2, b = 3.</li>
+</ul>
+<p>A <b>default value</b> is used only when you leave that argument out.</p>
+<div class="eg">def greet(name = "friend"):
+    print("hi " + name)
+
+greet()
+greet("Sam")</div>
+<div class="res">hi friend
+hi Sam</div>
+<p>This is the Problem 1 and Problem 5 lesson: <code>f(20)</code> and <code>f(10, 5)</code> pass arguments, so the defaults in <code>def f(x = 20)</code> are ignored.</p>
+</details>
+
+<details class="les"><summary>11. return vs print</summary>
+<ul class="rules">
+<li><code>print</code> shows something on the screen. It does not give a value back.</li>
+<li><code>return</code> hands a value back to whoever called the function and ends the function right away. It shows nothing on the screen by itself.</li>
+</ul>
+<div class="eg">def f():
+    return 5
+
+x = f()
+print(x)</div>
+<div class="res">5</div>
+<p>The call <code>f()</code> becomes the value 5, which is stored in x and then printed. Without a print, nothing would appear. Without <code>x =</code>, the 5 would be thrown away.</p>
+<div class="eg">def g():
+    print(5)
+
+y = g()
+print(y)</div>
+<div class="res">5
+None</div>
+<p>g prints 5 but returns nothing. A function with no return gives back <code>None</code>, Python's "no value".</p>
+<p><b>return ends the function.</b> Lines after it never run:</p>
+<div class="eg">def h():
+    return 1
+    print("never")
+
+print(h())</div>
+<div class="res">1</div>
+</details>
+
+<details class="les"><summary>12. Scope: each function has its own variables</summary>
+<p>A variable created inside a function is <b>local</b>: it lives only while that function runs. Two functions can each have an <code>x</code> and they do not affect each other.</p>
+<div class="eg">def change():
+    x = 99
+
+x = 1
+change()
+print(x)</div>
+<div class="res">1</div>
+<p>The x inside change is a different box. The only way to get a result out of a function is to <code>return</code> it and store it: <code>x = f(...)</code>.</p>
+<div class="trap">If you write <code>f(x)</code> alone, the returned value is thrown away and x is unchanged. If you write <code>x = f(x)</code>, x becomes whatever was returned.</div>
+</details>
+
+<details class="les"><summary>13. Functions calling functions (and recursion)</summary>
+<p>A function can call another function, or even itself. When f calls something, f <b>pauses</b> on that line and remembers its own variables. The new call runs to the end, then f resumes on the next line. Picture a stack of sticky notes: the newest call is on top and must finish first.</p>
+<div class="eg">def f(n):
+    if n &gt; 0:
+        print(n)
+        f(n - 1)
+
+f(3)</div>
+<div class="res">3
+2
+1</div>
+<p>Each call prints first, then calls the next one. f(0) fails the if and does nothing, so everything ends.</p>
+<p>Now move the print <b>after</b> the call:</p>
+<div class="eg">def f(n):
+    if n &gt; 0:
+        f(n - 1)
+        print(n)
+
+f(3)</div>
+<div class="res">1
+2
+3</div>
+<p>f(3) pauses at <code>f(2)</code> before printing. f(2) pauses at <code>f(1)</code>. f(1) calls f(0), which does nothing. Now the pauses unwind from the top: f(1) prints 1, then f(2) prints 2, then f(3) prints 3.</p>
+<div class="tip"><b>Exam method for Problem 8:</b> write the calls as a growing list (f1(8), f2(6), f1(1), ...). When a call ends, cross it off and go back to the call below it, at the line right after the one it made. Prints placed after a call happen on the way back.</div>
+</details>
+
+<h2 id="words">Vocabulary in plain English</h2>
+<div class="box"><div class="tablewrap"><table>
+<tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Output</td><td>Whatever <code>print</code> shows on the screen, in order</td></tr>
+<tr><td>Trace</td><td>Run the code by hand, line by line, tracking every variable</td></tr>
+<tr><td>Variable</td><td>A name that has a value stored under it</td></tr>
+<tr><td>Assignment</td><td>Storing a value with <code>=</code></td></tr>
+<tr><td>Expression</td><td>Anything that works out to a value, like <code>10 * 3 % 7</code></td></tr>
+<tr><td>Condition</td><td>An expression that is True or False, used by if and while</td></tr>
+<tr><td>Boolean</td><td>The True/False type</td></tr>
+<tr><td>String</td><td>Text in quotes</td></tr>
+<tr><td>Block</td><td>The indented lines that belong to an if, loop or function</td></tr>
+<tr><td>Iteration / pass</td><td>One time through the body of a loop</td></tr>
+<tr><td>Define (def)</td><td>Write a function down without running it</td></tr>
+<tr><td>Call</td><td>Run a function now by writing its name with parentheses</td></tr>
+<tr><td>Parameter</td><td>A blank name in the def line</td></tr>
+<tr><td>Argument</td><td>The actual value passed in a call</td></tr>
+<tr><td>Default value</td><td>The value a parameter gets when no argument is given</td></tr>
+<tr><td>Return</td><td>Send a value back to the caller and end the function</td></tr>
+<tr><td>None</td><td>Python's value for "nothing", what a function with no return gives back</td></tr>
+<tr><td>Local variable / scope</td><td>A variable that exists only inside its own function</td></tr>
+<tr><td>Recursion</td><td>A function that calls itself</td></tr>
+<tr><td>Infinite loop</td><td>A loop whose condition never becomes False</td></tr>
+</table></div></div>
+
+<h2 id="rules">Core rules</h2>
+<div class="grid2">
+<div class="box"><h3>Functions &amp; scope</h3>
+<ul class="rules">
+<li>A default (<code>def f(x = 20)</code>) is used only when you call <code>f()</code> with no argument. <code>f(20)</code> uses your value.</li>
+<li><code>print()</code> shows text and changes nothing. <code>return</code> sends a value back to the caller.</li>
+<li>Variables inside a function are local. <code>x</code> in <code>f()</code> is not the <code>x</code> in <code>main()</code>.</li>
+<li><code>x = f(20)</code> overwrites <code>x</code> with the return value. Plain <code>f(20)</code> throws the return value away.</li>
+</ul></div>
+<div class="box"><h3>String * int</h3>
+<ul class="rules">
+<li><code>'ab' * 3</code> is <code>'ababab'</code>.</li>
+<li><code>s = s * 2</code> doubles the string every pass: 1, 2, 4, 8, 16 copies.</li>
+<li>Count hidden spaces. <code>'bye '</code> ends with a space, and the space repeats too.</li>
+</ul></div>
+</div>
+<div class="box"><h3>Operator precedence (highest first)</h3>
+<div class="tablewrap"><table>
+<tr><th>Level</th><th>Operators</th><th>Note</th></tr>
+<tr><td>1</td><td><code>( )</code></td><td>Always first</td></tr>
+<tr><td>2</td><td><code>**</code></td><td>Exponent. Problem 6 needs this (not on your original sheet)</td></tr>
+<tr><td>3</td><td><code>*  /  //  %</code></td><td>Same level, so go left to right</td></tr>
+<tr><td>4</td><td><code>+  -</code></td><td>Same level, left to right</td></tr>
+<tr><td>5</td><td><code>&gt;= &lt; == &gt; &lt;= !=</code></td><td>Comparisons come last</td></tr>
+</table></div>
+<p><code>%</code> is the remainder: <code>30 % 7 = 2</code> because 7 fits into 30 four times (28) with 2 left. <code>//</code> is division that drops the decimals: <code>20 // 13 = 1</code>, <code>10 // 3 = 3</code>.</p>
+</div>
+
+<h2 id="traps">Six traps to check on every question</h2>
+<div class="trap"><b>Small % big.</b> If the left number is smaller than the right, the answer is the left number. <code>3 % 7 = 3</code>.</div>
+<div class="trap"><b>Variable overwrite.</b> Look for <code>x = f(...)</code>. With the assignment, the return value replaces <code>x</code>. Without it, <code>x</code> stays as it was.</div>
+<div class="trap"><b>Loop end-point.</b> <code>i &gt; -1</code> still runs when <code>i</code> is 0. <code>i &gt; 0</code> would stop before that pass.</div>
+<div class="trap"><b>Loop condition that starts false.</b> If the condition is false on the first check, the body runs zero times. Always test the condition before running the body.</div>
+<div class="trap"><b>for ... else.</b> An <code>else</code> lined up with <code>for</code> runs only if the loop finished without <code>break</code>. Indentation decides which statement an <code>else</code> belongs to.</div>
+<div class="trap"><b>Print after a call.</b> In recursion, a <code>print</code> placed after a function call waits until that call returns. The deepest call prints first.</div>
+
+<h2 id="problems">Practice problems</h2>
+<p>For each one: write your answer on paper, press <b>Show answer</b>, then press <b>Step through</b> to watch every line run.</p>
+<div id="probs"></div>
+
+<h2 id="arcade">Practice arcade</h2>
+<p>45 questions that teach what each piece of code means, from "what does = do" up to recursion. Pick a topic or play them all. Every answer comes with the reason. When an answer lists several outputs separated by commas, each one is on its own line on the screen.</p>
+<div class="box" id="game"></div>
+
+<h2 id="drill">Math drill: endless practice</h2>
+<p>Random expressions using <code>%</code>, <code>//</code>, <code>**</code> and precedence, plus True/False comparisons. Type what <code>print(...)</code> would show, then press Enter. These are the calculations that cost people marks.</p>
+<div class="box" id="drill"></div>
+
+<h2 id="method">The method that works every time</h2>
+<ol class="rules">
+<li>Start at <code>main()</code>. Ignore function bodies until they are called.</li>
+<li>Keep a small table of variables. Update it after every assignment.</li>
+<li>Evaluate expressions in precedence order and write each intermediate result.</li>
+<li>For loops, write one line per pass: condition check, then each body line.</li>
+<li>For function calls, note the arguments, run the body, then return to the line that called it.</li>
+<li>Write output only when you reach a <code>print</code>.</li>
+</ol>
+<footer>Study guide built from your instructor's practice sheet. Problem 8 is the midterm practice question. Problems 4 and 7 were pasted without indentation, so the code shown here uses the indentation that produces the given answers.</footer>
+</div>
+
+<script>
+const P=[
+{t:"Scope & return values",tag:"Functions",
+code:["def f(x = 20):","    if x > 2*x - 20:","        return x - 20","    else:","        print(x)","        return x","","def main():","    x = 10","    x = f(20)","    print(x)","","main()"],
+ans:"20\n20",
+why:"f(20) uses the argument 20, not the default. The test is 20 > 2*20 - 20, which is 20 > 20, and that is False. So the else branch prints 20 and returns 20. Back in main, x = f(20) overwrites x with 20, and print(x) prints 20 again.",
+steps:[
+[12,"main() starts.",[["main","(no variables yet)"]]],
+[8,"x = 10 in main.",[["main","x = 10"]]],
+[9,"Call f(20). The argument 20 beats the default.",[["main","x = 10"],["f","x = 20"]]],
+[1,"2*20 - 20 = 20, so the test is 20 > 20: False. Skip to else.",[["main","x = 10"],["f","x = 20"]]],
+[4,"print(x) shows 20.",[["main","x = 10"],["f","x = 20"]],"20"],
+[5,"return 20. f ends and its local x disappears.",[["main","x = 10"],["f","x = 20"]]],
+[9,"x = f(20) stores 20 into main's x, overwriting 10.",[["main","x = 20"]]],
+[10,"print(x) shows 20.",[["main","x = 20"]],"20"]]},
+{t:"Exponential loop",tag:"Strings and loops",
+code:["def main():","    s = 'bye '","    i = 4","    while i > -1:","        s = s * 2","        i = i - 2","    print(s)","","main()"],
+ans:"bye bye bye bye bye bye bye bye ",
+why:"i goes 4, 2, 0, so the loop runs 3 times (0 > -1 is True). Each pass doubles the string: 1 copy, then 2, 4, 8. Final: 8 copies of 'bye ', each with a trailing space.",
+steps:[
+[1,"s starts as 1 copy of 'bye '.",[["main","s = 1 copy, i = ?"]]],
+[2,"i = 4.",[["main","s = 1 copy, i = 4"]]],
+[3,"4 > -1: True. Enter loop (pass 1).",[["main","s = 1 copy, i = 4"]]],
+[4,"s doubles: 2 copies.",[["main","s = 2 copies, i = 4"]]],
+[5,"i = 4 - 2 = 2.",[["main","s = 2 copies, i = 2"]]],
+[3,"2 > -1: True (pass 2).",[["main","s = 2 copies, i = 2"]]],
+[4,"s doubles: 4 copies.",[["main","s = 4 copies, i = 2"]]],
+[5,"i = 2 - 2 = 0.",[["main","s = 4 copies, i = 0"]]],
+[3,"0 > -1: True (pass 3). The end-point trap: 0 still runs.",[["main","s = 4 copies, i = 0"]]],
+[4,"s doubles: 8 copies.",[["main","s = 8 copies, i = 0"]]],
+[5,"i = 0 - 2 = -2.",[["main","s = 8 copies, i = -2"]]],
+[3,"-2 > -1: False. Exit loop.",[["main","s = 8 copies, i = -2"]]],
+[6,"print(s) shows all 8 copies.",[["main","s = 8 copies, i = -2"]],"bye bye bye bye bye bye bye bye "]]},
+{t:"Precedence and modulo",tag:"Operators",
+code:["def main():","    a = 10","    b = 20","    if a*3%7 >= 2:","        print(b)","    if b < a*(3%7):","        print(a)","","main()"],
+ans:"20\n10",
+why:"First test: * and % tie, so go left to right. 10*3 = 30, then 30 % 7 = 2, and 2 >= 2 is True. Second test: parentheses first, 3 % 7 = 3 (small % big). Then 10*3 = 30, and 20 < 30 is True.",
+steps:[
+[1,"a = 10.",[["main","a = 10"]]],
+[2,"b = 20.",[["main","a = 10, b = 20"]]],
+[3,"10*3 = 30, then 30 % 7 = 2, then 2 >= 2: True.",[["main","a = 10, b = 20"]]],
+[4,"print(b) shows 20.",[["main","a = 10, b = 20"]],"20"],
+[5,"Parentheses first: 3 % 7 = 3. Then 10*3 = 30. 20 < 30: True.",[["main","a = 10, b = 20"]]],
+[6,"print(a) shows 10.",[["main","a = 10, b = 20"]],"10"]]},
+{t:"Nested ifs with // and %",tag:"Operators and branching",
+code:["def main():","    a = 10","    b = 20","    if a % 3 == b // 13:","        if b % 13 == a // 3:","            print(b)","        else:","            b = b + 2","        if a < b // 2:","            if b < a * 2:","                print(a)","            else:","                print(a + b)","","main()"],
+ans:"32",
+why:"a%3 = 1 and b//13 = 1, so the outer test is True. Inside, b%13 = 7 but a//3 = 3, so that test is False and the else makes b = 22. Next, a < b//2 is 10 < 11, True. Then b < a*2 is 22 < 20, False, so the else prints a + b = 32. The key move: b changed to 22 before it was used again.",
+steps:[
+[1,"a = 10.",[["main","a = 10"]]],
+[2,"b = 20.",[["main","a = 10, b = 20"]]],
+[3,"10 % 3 = 1 and 20 // 13 = 1. 1 == 1: True. Enter.",[["main","a = 10, b = 20"]]],
+[4,"20 % 13 = 7 and 10 // 3 = 3. 7 == 3: False. Go to else.",[["main","a = 10, b = 20"]]],
+[7,"b = 20 + 2 = 22.",[["main","a = 10, b = 22"]]],
+[8,"b // 2 = 11. 10 < 11: True. Enter.",[["main","a = 10, b = 22"]]],
+[9,"a*2 = 20. 22 < 20: False. Go to else.",[["main","a = 10, b = 22"]]],
+[12,"print(a + b) shows 10 + 22 = 32.",[["main","a = 10, b = 22"]],"32"]]},
+{t:"While loop count",tag:"Loops and defaults",
+code:["def f(x = 5, y = 10):","    while y <= 5:","        x = x + 5","        y = x // 5","    return y","","def main():","    x = f(10, 5)","    print(x)","","main()"],
+ans:"The loop runs 4 times.\nOutput: 6",
+why:"The call f(10, 5) ignores the defaults, so x = 10 and y = 5. The loop checks y, not x. Passes: x 15 y 3, then x 20 y 4, then x 25 y 5 (5 <= 5 is still True), then x 30 y 6. Now 6 <= 5 is False. That is 4 passes, and f returns 6.",
+steps:[
+[7,"Call f(10, 5): x = 10, y = 5 (defaults unused).",[["main","(waiting)"],["f","x = 10, y = 5"]]],
+[1,"5 <= 5: True. Pass 1.",[["main","(waiting)"],["f","x = 10, y = 5"]]],
+[2,"x = 15.",[["main","(waiting)"],["f","x = 15, y = 5"]]],
+[3,"y = 15 // 5 = 3.",[["main","(waiting)"],["f","x = 15, y = 3"]]],
+[1,"3 <= 5: True. Pass 2.",[["main","(waiting)"],["f","x = 15, y = 3"]]],
+[3,"x = 20, then y = 20 // 5 = 4.",[["main","(waiting)"],["f","x = 20, y = 4"]]],
+[1,"4 <= 5: True. Pass 3.",[["main","(waiting)"],["f","x = 20, y = 4"]]],
+[3,"x = 25, then y = 25 // 5 = 5.",[["main","(waiting)"],["f","x = 25, y = 5"]]],
+[1,"5 <= 5: True. Pass 4. Equal still counts for <=.",[["main","(waiting)"],["f","x = 25, y = 5"]]],
+[3,"x = 30, then y = 30 // 5 = 6.",[["main","(waiting)"],["f","x = 30, y = 6"]]],
+[1,"6 <= 5: False. Loop ends after 4 passes.",[["main","(waiting)"],["f","x = 30, y = 6"]]],
+[4,"return y gives 6.",[["main","(waiting)"],["f","x = 30, y = 6"]]],
+[7,"x = f(10, 5) stores 6 in main's x.",[["main","x = 6"]]],
+[8,"print(x) shows 6.",[["main","x = 6"]],"6"]]},
+{t:"Exponent precedence",tag:"Operators",
+code:["def main():","    x = 10**2*2**5","    y = 5*2**2*10","    print(x)","    print(y)","","main()"],
+ans:"3200\n200",
+why:"** is evaluated before *. x: 10**2 = 100 and 2**5 = 32, then 100*32 = 3200. y: 2**2 = 4, then 5*4 = 20, then 20*10 = 200.",
+steps:[
+[1,"Exponents first: 10**2 = 100 and 2**5 = 32. Then 100 * 32 = 3200.",[["main","x = 3200"]]],
+[2,"Exponent first: 2**2 = 4. Then 5*4 = 20, then 20*10 = 200.",[["main","x = 3200, y = 200"]]],
+[3,"print(x) shows 3200.",[["main","x = 3200, y = 200"]],"3200"],
+[4,"print(y) shows 200.",[["main","x = 3200, y = 200"]],"200"]]},
+{t:"for ... else with break",tag:"Loops",
+code:["def main():","    for i in range(1, 10):","        if i > 5:","            print(i)","            break","    else:","        print(\"Is this going to be printed?\")","","main()"],
+ans:"6",
+why:"range(1, 10) gives 1 through 9. Nothing prints for 1 to 5, because the only print inside the loop sits behind i > 5. At i = 6 the program prints 6 and hits break. The else belongs to the for loop, and it only runs when the loop ends without a break. The break happened, so the else is skipped.",
+steps:[
+[1,"i = 1.",[["main","i = 1"]]],
+[2,"1 > 5: False. Nothing happens. Same for i = 2, 3, 4, 5.",[["main","i = 1 (then 2, 3, 4, 5)"]]],
+[1,"i = 6.",[["main","i = 6"]]],
+[2,"6 > 5: True.",[["main","i = 6"]]],
+[3,"print(i) shows 6.",[["main","i = 6"]],"6"],
+[4,"break leaves the loop immediately. The for-else is skipped.",[["main","i = 6"]]]]},
+{t:"Mutual recursion (midterm practice)",tag:"Recursion",
+code:["def f2(x):","    if x > 5:","        f1(x - 5)","    if x < 5:","        f2(x + 2)","","def f1(x):","    if x < 10:","        f2(x - 2)","        print(x)","    else:","        f1(x + 2)","","def main():","    f1(8)","","main()"],
+ans:"1\n8",
+why:"Follow the chain of calls: f1(8) calls f2(6), which calls f1(1), which calls f2(-1), then f2(1), f2(3), f2(5). f2(5) does nothing, so all the f2 calls return. Only then does f1(1) reach its print and show 1. Control returns to f2(6) (nothing left to do), then to f1(8), which prints 8. Prints sit after the calls, so the deepest call prints first.",
+steps:[
+[14,"main calls f1(8).",[["main","calling f1"],["f1","x = 8"]]],
+[7,"8 < 10: True.",[["main",""],["f1","x = 8"]]],
+[8,"Call f2(8 - 2) = f2(6). The print(8) must wait.",[["f1","x = 8 (waiting)"],["f2","x = 6"]]],
+[1,"6 > 5: True.",[["f1","x = 8 (waiting)"],["f2","x = 6"]]],
+[2,"Call f1(6 - 5) = f1(1).",[["f1","x = 8 (waiting)"],["f2","x = 6 (waiting)"],["f1","x = 1"]]],
+[7,"1 < 10: True.",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1"]]],
+[8,"Call f2(1 - 2) = f2(-1). print(1) must wait.",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"]]],
+[1,"-1 > 5: False. Skip.",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"]]],
+[3,"-1 < 5: True. Call f2(1).",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"],["f2","x = 1"]]],
+[3,"1 < 5: True. Call f2(3).",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"],["f2","x = 1"],["f2","x = 3"]]],
+[3,"3 < 5: True. Call f2(5).",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"],["f2","x = 1"],["f2","x = 3"],["f2","x = 5"]]],
+[1,"5 > 5 is False and 5 < 5 is False. f2(5) does nothing and returns.",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1 (waiting)"],["f2","x = -1"],["f2","x = 1"],["f2","x = 3"],["f2","x = 5"]]],
+[8,"f2(3), f2(1) and f2(-1) have nothing left to do, so they all return. Back inside f1(1).",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1"]]],
+[9,"print(x) in f1(1) shows 1. This is the first output.",[["f1","x = 8"],["f2","x = 6"],["f1","x = 1"]],"1"],
+[3,"f1(1) returns to f2(6). 6 < 5 is False, so f2(6) returns too.",[["f1","x = 8"],["f2","x = 6"]]],
+[9,"Back in f1(8): print(x) shows 8.",[["f1","x = 8"]],"8"]]}
+];
+const root=document.getElementById('probs');
+P.forEach((p,n)=>{
+ const k=n+1,card=document.createElement('section');card.className='prob';card.id='p'+k;
+ const h=document.createElement('div');
+ h.innerHTML='<span class="tag"></span><h3></h3>';
+ h.children[0].textContent='Problem '+k+' / '+p.tag;h.children[1].textContent=p.t;card.appendChild(h);
+ const pre=document.createElement('pre');pre.className='code';
+ const lines=p.code.map((c,i)=>{const s=document.createElement('span');s.className='ln';const num=document.createElement('i');num.textContent=String(i+1);s.appendChild(num);s.appendChild(document.createTextNode(c));pre.appendChild(s);return s});
+ card.appendChild(pre);
+ const row=document.createElement('div');row.className='row';
+ const bA=document.createElement('button');bA.className='b main';bA.textContent='Show answer';
+ const bT=document.createElement('button');bT.className='b';bT.textContent='Step through';
+ row.append(bA,bT);card.appendChild(row);
+ const ans=document.createElement('div');ans.className='ans';
+ const fin=document.createElement('div');fin.className='final';fin.textContent=p.ans;
+ const why=document.createElement('p');why.innerHTML='<b>Why:</b> ';why.appendChild(document.createTextNode(p.why));
+ ans.append(fin,why);card.appendChild(ans);
+ const tr=document.createElement('div');tr.className='tracer';
+ const note=document.createElement('div');note.className='note';
+ const state=document.createElement('div');state.className='state';
+ const out=document.createElement('div');out.className='out';
+ const ctl=document.createElement('div');ctl.className='row';
+ const bP=document.createElement('button');bP.className='b';bP.textContent='Back';
+ const bN=document.createElement('button');bN.className='b main';bN.textContent='Next step';
+ const bR=document.createElement('button');bR.className='b';bR.textContent='Restart';
+ const cnt=document.createElement('span');cnt.className='cnt';
+ ctl.append(bP,bN,bR,cnt);tr.append(ctl,note,state,out);card.appendChild(tr);
+ let i=-1;
+ function draw(){
+  lines.forEach(l=>l.classList.remove('on'));
+  state.innerHTML='';
+  if(i<0){note.textContent='Press Next step to run the first line.';out.innerHTML='<em>output appears here</em>';cnt.textContent='Step 0 of '+p.steps.length;bP.disabled=true;bN.disabled=false;return}
+  const s=p.steps[i];lines[s[0]].classList.add('on');
+  note.textContent=s[1];
+  s[2].forEach((f,j)=>{const d=document.createElement('div');d.className='frame'+(j===s[2].length-1?' top':'');const b=document.createElement('b');b.textContent=f[0];d.appendChild(b);d.appendChild(document.createTextNode(f[1]));state.appendChild(d)});
+  const o=p.steps.slice(0,i+1).filter(x=>x[3]!==undefined).map(x=>x[3]);
+  out.textContent=o.length?o.join('\n'):'';if(!o.length)out.innerHTML='<em>nothing printed yet</em>';
+  cnt.textContent='Step '+(i+1)+' of '+p.steps.length;bP.disabled=false;bN.disabled=i>=p.steps.length-1;
+ }
+ bN.onclick=()=>{if(i<p.steps.length-1){i++;draw()}};
+ bP.onclick=()=>{if(i>=0){i--;draw()}};
+ bR.onclick=()=>{i=-1;draw()};
+ bA.onclick=()=>{const s=ans.classList.toggle('show');bA.textContent=s?'Hide answer':'Show answer'};
+ bT.onclick=()=>{const s=tr.classList.toggle('show');bT.textContent=s?'Hide tracer':'Step through';if(s)draw();else lines.forEach(l=>l.classList.remove('on'))};
+ root.appendChild(card);
+});
+document.getElementById('theme').onclick=()=>{
+ const r=document.documentElement;
+ const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+ r.dataset.theme=dark?'light':'dark';
+};
+</script>
+</body>
+</html>
